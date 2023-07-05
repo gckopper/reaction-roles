@@ -106,7 +106,7 @@ var (
 			components := make([]discordgo.MessageComponent, ((len(mappings)-1)/5)+1)
 			index := 0
 			var current *[]discordgo.MessageComponent
-			for k, v := range mappings {
+			for k := range mappings {
 				if index%5 == 0 {
 					current = &[]discordgo.MessageComponent{}
 				}
@@ -116,7 +116,7 @@ var (
 					Style: discordgo.SuccessButton,
 					// Disabled allows bot to disable some buttons for users.
 					Disabled: false,
-					CustomID: v,
+					CustomID: k,
 				})
 				index += 1
 				if index%5 == 0 {
