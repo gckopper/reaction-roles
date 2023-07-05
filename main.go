@@ -100,12 +100,8 @@ func roleToggle(s *discordgo.Session, i *discordgo.InteractionCreate) {
 }
 
 var (
-	// componentsHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
-
-	// 	"fd_yes": roleToggle,
-	// }
 	commandsHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
-		"buttons": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+		"roles": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			components := make([]discordgo.MessageComponent, ((len(mappings)-1)/5)+1)
 			index := 0
 			var current *[]discordgo.MessageComponent
@@ -169,8 +165,8 @@ func main() {
 		}
 	})
 	_, err := s.ApplicationCommandCreate(*AppID, *GuildID, &discordgo.ApplicationCommand{
-		Name:        "buttons",
-		Description: "Test the buttons if you got courage",
+		Name:        "roles",
+		Description: "Get roles menu",
 	})
 
 	if err != nil {
