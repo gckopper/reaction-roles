@@ -16,6 +16,7 @@ var (
 	BotToken    = flag.String("token", "", "Bot access token")
 	AppID       = flag.String("app", "", "Application ID")
 	MappingFile = flag.String("mapping", "map.json", "Json file mapping roles with buttom labels")
+	message     = flag.String("msg", "Pick your roles", "Text to be shown with the buttons")
 )
 
 var s *discordgo.Session
@@ -130,13 +131,13 @@ var (
 				}
 			}
 			flags := discordgo.MessageFlagsEphemeral
-			if i.Member.Permissions == discordgo.PermissionAdministrator {
+			if i.Member.Permissions&discordgo.PermissionAdministrator != 0 {
 				flags = 0
 			}
 			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
-					Content:    "Pick your roles",
+					Content:    *message,
 					Flags:      flags,
 					Components: components,
 				},
