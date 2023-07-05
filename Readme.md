@@ -13,6 +13,8 @@ Your discord app ID from the discord dev console
 The guild id for the server
 -mapping
 A json file mapping a button label to a role name
+-msg
+The message that will come with the buttons
 ```
 
 ## map.json file
