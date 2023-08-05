@@ -3,9 +3,11 @@ package main
 import (
 	"encoding/json"
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
+	"sort"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -21,7 +23,7 @@ var (
 
 var s *discordgo.Session
 
-var mappings map[string]string
+var buttonMap ButtonMap
 
 func init() { flag.Parse() }
 
@@ -31,6 +33,7 @@ func init() {
 	if err != nil {
 		log.Fatalf("I NEED A MAP FILE: %v", err)
 	}
+	var mappings map[string][][]Button
 	err = json.Unmarshal(file, &mappings)
 	if err != nil {
 		log.Fatalf("FAILED TO PARSE YOUR JSON: %v", err)
@@ -39,11 +42,22 @@ func init() {
 	if err != nil {
 		log.Fatalf("Invalid bot parameters: %v", err)
 	}
+	s.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
+		roles, err := s.GuildRoles(*GuildID)
+		if err != nil {
+			log.Fatalf("Failed to fetch guild roles with error: %v", err)
+		}
+		sort.Slice(roles, func(i, j int) bool {
+			return roles[i].Name < roles[j].Name
+		})
+		buttonMap = convertMap(mappings, roles)
+		log.Println("Bot is up!")
+	})
 }
 
 // Important note: call every command in order it's placed in the example.
 
-func InteractionResponseFailure(s *discordgo.Session, i *discordgo.InteractionCreate, str string) {
+func InteractionResponseEphemeral(s *discordgo.Session, i *discordgo.InteractionCreate, str string) {
 	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
@@ -52,126 +66,81 @@ func InteractionResponseFailure(s *discordgo.Session, i *discordgo.InteractionCr
 		},
 	})
 	if err != nil {
-		panic(err)
+		log.Println("[ERROR] [InteractionResponseEphemeral]", err)
 	}
 }
 
 func roleToggle(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	var err error
-	input := i.MessageComponentData().CustomID
-	roleName, exist := mappings[input]
-	if !exist {
-		InteractionResponseFailure(s, i, "This button is not mapped to anything!")
-		return
-	}
-	guildRoles, err := s.GuildRoles(i.GuildID)
-	if err != nil {
-		InteractionResponseFailure(s, i, "Failed to fetch guild roles")
-		return
-	}
-	var role string
-	for _, v := range guildRoles {
-		if v.Name == roleName {
-			role = v.ID
-		}
-	}
-	if role == "" {
-		InteractionResponseFailure(s, i, "Role does not exist")
-		return
-	}
+	role := i.MessageComponentData().CustomID
 	member := i.Member
 	if member == nil {
-		InteractionResponseFailure(s, i, "Cant figure out your ID so... FUCK YOU")
+		InteractionResponseEphemeral(s, i, "Cant figure out your ID so... FUCK YOU")
+		log.Println("[ERROR]", "Cant figure out user ID")
 		return
 	}
 
 	id := i.Member.User.ID
 	for _, v := range i.Member.Roles {
 		if v == role {
-			s.GuildMemberRoleRemove(i.GuildID, id, role)
-			InteractionResponseFailure(s, i, "Role removed")
+			err = s.GuildMemberRoleRemove(i.GuildID, id, role)
+			if err != nil {
+				InteractionResponseEphemeral(s, i, "Failed to remove your role! Please contact an admin!")
+				log.Printf("[ERROR] [Removing role {%s}] %s\n", role, err)
+				return
+			}
+			InteractionResponseEphemeral(s, i, "Role removed")
 			return
 		}
 	}
 	err = s.GuildMemberRoleAdd(i.GuildID, id, role)
 	if err != nil {
-		panic(err)
+		log.Printf("[ERROR] [Adding role {%s}] %s\n", role, err)
+		InteractionResponseEphemeral(s, i, "Failed to add your role! Please contact an admin!")
+		return
 	}
-	InteractionResponseFailure(s, i, "Role added")
+	InteractionResponseEphemeral(s, i, "Role added")
 }
 
-var (
-	commandsHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
-		"roles": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			components := make([]discordgo.MessageComponent, ((len(mappings)-1)/5)+1)
-			index := 0
-			var current *[]discordgo.MessageComponent
-			for k := range mappings {
-				if index%5 == 0 {
-					current = &[]discordgo.MessageComponent{}
-				}
-				// fmt.Println("current ", index, ": ", current)
-				*current = append(*current, discordgo.Button{
-					Label: k,
-					Style: discordgo.SuccessButton,
-					// Disabled allows bot to disable some buttons for users.
-					Disabled: false,
-					CustomID: k,
-				})
-				index += 1
-				if index%5 == 0 {
-					components[(index-1)/5] = discordgo.ActionsRow{
-						Components: *current,
-					}
-				}
-			}
-			if index%5 != 0 {
-				components[((index - 1) / 5)] = discordgo.ActionsRow{
-					Components: *current,
-				}
-			}
-			flags := discordgo.MessageFlagsEphemeral
-			if i.Member.Permissions&discordgo.PermissionAdministrator != 0 {
-				flags = 0
-			}
-			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-				Type: discordgo.InteractionResponseChannelMessageWithSource,
-				Data: &discordgo.InteractionResponseData{
-					Content:    *message,
-					Flags:      flags,
-					Components: components,
-				},
-			})
-			if err != nil {
-				panic(err)
-			}
-		},
+func sendButton(s *discordgo.Session, i *discordgo.InteractionCreate, components []discordgo.MessageComponent) {
+	flags := discordgo.MessageFlagsEphemeral
+	if i.Member.Permissions&discordgo.PermissionAdministrator != 0 {
+		flags = 0
 	}
-)
-
-func main() {
-	s.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
-		log.Println("Bot is up!")
+	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Content:    *message,
+			Flags:      flags,
+			Components: components,
+		},
 	})
+	if err != nil {
+		log.Println("[ERROR] [sendButton]", err)
+	}
+}
+func main() {
+	var err error
 	// Components are part of interactions, so we register InteractionCreate handler
 	s.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		switch i.Type {
 		case discordgo.InteractionApplicationCommand:
-			if h, ok := commandsHandlers[i.ApplicationCommandData().Name]; ok {
-				h(s, i)
+			if h, ok := buttonMap[i.ApplicationCommandData().Name]; ok {
+				sendButton(s, i, h)
 			}
 		case discordgo.InteractionMessageComponent:
 
 			roleToggle(s, i)
 		}
 	})
-	_, err := s.ApplicationCommandCreate(*AppID, *GuildID, &discordgo.ApplicationCommand{
-		Name:        "roles",
-		Description: "Get roles menu",
-	})
-
-	if err != nil {
-		log.Fatalf("Cannot create slash command: %v", err)
+	for k := range buttonMap {
+		_, err = s.ApplicationCommandCreate(*AppID, *GuildID, &discordgo.ApplicationCommand{
+			Name:        k,
+			Description: fmt.Sprint("Get role menu for", k),
+		})
+		if err != nil {
+			log.Fatalf("Cannot create slash command: %v", err)
+		}
 	}
 
 	err = s.Open()
