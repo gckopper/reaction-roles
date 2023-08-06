@@ -23,7 +23,47 @@ Inside your map.json file you'll use this schema:
 
 ```json
 {
-    "Label1": "roleName1",
-    "Label2": "roleName2",
+    "aa": [
+        [
+            {
+                "Role":"a",
+                "Label": "Role A",
+                "Style": "red"
+            },
+            {
+                "Role":"b",
+                "Label": "Role B",
+                "Style": "green"
+            },
+            {
+                "Role":"c",
+                "Label": "Role C",
+                "Style": "grey"
+            }
+        ],
+        [
+            {
+                "Role":"d",
+                "Label": "Role deez nuts",
+                "Style": "blurple"
+            }
+        ]
+    ],
+    "bb": [
+        [
+            {
+                "Role":"a",
+                "Label": "Damn I love potatoes!",
+                "Style": "red"
+            }
+        ],
+        [
+            {
+                "Role":"d",
+                "Label": "Role deez nuts",
+                "Style": "blurple"
+            }
+        ]
+    ]
 }
 ```

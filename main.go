@@ -51,11 +51,19 @@ func init() {
 			return roles[i].Name < roles[j].Name
 		})
 		buttonMap = convertMap(mappings, roles)
+		for k := range buttonMap {
+			_, err = s.ApplicationCommandCreate(*AppID, *GuildID, &discordgo.ApplicationCommand{
+				Name:        k,
+				Description: fmt.Sprint("Get role menu for", k),
+			})
+			fmt.Println("Adding command:", k)
+			if err != nil {
+				log.Fatalf("Cannot create slash command: %v", err)
+			}
+		}
 		log.Println("Bot is up!")
 	})
 }
-
-// Important note: call every command in order it's placed in the example.
 
 func InteractionResponseEphemeral(s *discordgo.Session, i *discordgo.InteractionCreate, str string) {
 	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
@@ -133,13 +141,15 @@ func main() {
 			roleToggle(s, i)
 		}
 	})
-	for k := range buttonMap {
-		_, err = s.ApplicationCommandCreate(*AppID, *GuildID, &discordgo.ApplicationCommand{
-			Name:        k,
-			Description: fmt.Sprint("Get role menu for", k),
-		})
+	cmds, err := s.ApplicationCommands(*AppID, *GuildID)
+	if err != nil {
+		log.Fatalln("Failed to fetch guild commands:", err)
+	}
+	for cmd := range cmds {
+		err = s.ApplicationCommandDelete(*AppID, *GuildID, cmds[cmd].ID)
+		fmt.Println("Deleting command:", cmds[cmd].Name)
 		if err != nil {
-			log.Fatalf("Cannot create slash command: %v", err)
+			log.Println("Cannot delete slash command:", err)
 		}
 	}
 
