@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"sort"
 	"strings"
 
@@ -20,12 +21,12 @@ func convertMap(fileMap map[string][][]Button, roles []*discordgo.Role) ButtonMa
 	result := make(ButtonMap)
 	for k, actionsRow := range fileMap {
 		if len(actionsRow) > 5 {
-			panic("Command has more than 5 actions rows")
+			log.Fatalln("Command has more than 5 actions rows")
 		}
 		currentActionRow := []discordgo.MessageComponent{}
 		for _, buttons := range actionsRow {
 			if len(buttons) > 5 {
-				panic("Action row has more than 5 buttons")
+				log.Fatalln("Action row has more than 5 buttons")
 			}
 			currentButton := []discordgo.MessageComponent{}
 			for _, button := range buttons {
