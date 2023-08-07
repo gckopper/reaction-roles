@@ -15,45 +15,56 @@ The guild id for the server
 A json file mapping a button label to a role name
 -msg
 The message that will come with the buttons
+For now the message will be shared across all commands
 ```
 
 ## map.json file
+
+### Limitations
+
+- You can only have a maximum of 5 rows per command and 5 buttons per row (so a total of 25 roles per command) (Discord limitation)
+- Command names should follow this JS style regex (You can test with `"your-command-name".match(/^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$/gu)` in a JS runtime such as your browsers console) (Discord limitation)
+- For now, the message will be shared across all commands (Our limitation)
+
+### Available Styles
+
+- ![#5865f2](images/red.png) red
+- ![#5865f2](images/blurple.png) blurple
+- ![#5865f2](images/green.png) green
+- ![#5865f2](images/grey.png) grey
+
+### Example
 
 Inside your map.json file you'll use this schema:
 
 ```json
 {
-    "aa": [
+    "first-command-name": [
         [
             {
-                "Role":"a",
-                "Label": "Role A",
+                "Role":"role name in your server",
+                "Label": "Text written in this button",
                 "Style": "red"
             },
             {
-                "Role":"b",
-                "Label": "Role B",
-                "Style": "green"
-            },
-            {
-                "Role":"c",
-                "Label": "Role C",
+                "Role":"Another role",
+                "Label": "Different label",
                 "Style": "grey"
             }
         ],
         [
             {
-                "Role":"d",
-                "Label": "Role deez nuts",
+                "Role":"A role in a different row!",
+                "Label": "Label in a different row!",
                 "Style": "blurple"
             }
         ]
     ],
-    "bb": [
+    "second-command": [
         [
             {
-                "Role":"a",
-                "Label": "Damn I love potatoes!",
+                "Role":"Different command",
+                "Label": "Role in a diffferent command",
                 "Style": "red"
             }
         ],
