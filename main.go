@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"regexp"
 	"sort"
 
 	"github.com/bwmarrin/discordgo"
@@ -38,9 +39,15 @@ func init() {
 	if err != nil {
 		log.Fatalf("FAILED TO PARSE YOUR JSON: %v", err)
 	}
+	re := regexp.MustCompile(`^[-_\p{L}\p{N}\p{Devanagari}\p{Thai}]{1,32}$`)
+	for k := range mappings {
+		if !re.MatchString(k) {
+			log.Fatalln("The command name does not follow discord naming rules:", err)
+		}
+	}
 	s, err = discordgo.New("Bot " + *BotToken)
 	if err != nil {
-		log.Fatalf("Invalid bot parameters: %v", err)
+		log.Fatalln("Invalid bot parameters:", err)
 	}
 	s.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
 		roles, err := s.GuildRoles(*GuildID)
