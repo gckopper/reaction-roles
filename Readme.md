@@ -23,7 +23,8 @@ For now the message will be shared across all commands
 ### Limitations
 
 - You can only have a maximum of 5 rows per command and 5 buttons per row (so a total of 25 roles per command) (Discord limitation)
-- Command names should follow this JS style regex (You can test with `"your-command-name".match(/^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$/gu)` in a JS runtime such as your browsers console) (Discord limitation)
+- Command names should follow this `/^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$/gu` JS style regex (Discord limitation)
+  - You can test with `"your-command-name".match(/^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$/gu)` in a JS runtime such as your browsers console
 - For now, the message will be shared across all commands (Our limitation)
 
 ### Available Styles
