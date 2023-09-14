@@ -21,7 +21,7 @@ func convertMap(fileMap map[string][][]Button, roles []*discordgo.Role) ButtonMa
 	result := make(ButtonMap)
 	for k, actionsRow := range fileMap {
 		if len(actionsRow) > 5 {
-			log.Fatalln("Command has more than 5 actions rows")
+			log.Fatalln("Command has more than 5 action rows")
 		}
 		currentActionRow := []discordgo.MessageComponent{}
 		for _, buttons := range actionsRow {
