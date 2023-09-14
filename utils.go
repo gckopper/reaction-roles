@@ -9,22 +9,33 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-type ButtonMap map[string][]discordgo.MessageComponent
-
-type Button struct {
+type JSONButton struct {
 	Label string
 	Role  string
 	Style string
 }
 
-func convertMap(fileMap map[string][][]Button, roles []*discordgo.Role) ButtonMap {
-	result := make(ButtonMap)
-	for k, actionsRow := range fileMap {
-		if len(actionsRow) > 5 {
+type JSONCommand struct {
+	Message     string
+	Description string
+	Buttons     [][]JSONButton
+}
+
+type Command struct {
+	Message     string
+	Description string
+	Buttons     []discordgo.MessageComponent
+}
+type CommandMap map[string]Command
+
+func convertMap(fileMap map[string]JSONCommand, roles []*discordgo.Role) CommandMap {
+	result := make(CommandMap)
+	for k, cmd := range fileMap {
+		if len(cmd.Buttons) > 5 {
 			log.Fatalln("Command has more than 5 action rows")
 		}
 		currentActionRow := []discordgo.MessageComponent{}
-		for _, buttons := range actionsRow {
+		for _, buttons := range cmd.Buttons {
 			if len(buttons) > 5 {
 				log.Fatalln("Action row has more than 5 buttons")
 			}
@@ -57,7 +68,11 @@ func convertMap(fileMap map[string][][]Button, roles []*discordgo.Role) ButtonMa
 				Components: currentButton,
 			})
 		}
-		result[k] = currentActionRow
+		result[k] = Command{
+            Buttons: currentActionRow,
+            Description: cmd.Description,
+            Message: cmd.Message,
+        }
 	}
 	return result
 }

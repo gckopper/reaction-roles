@@ -19,12 +19,11 @@ var (
 	BotToken    = flag.String("token", "", "Bot access token")
 	AppID       = flag.String("app", "", "Application ID")
 	MappingFile = flag.String("mapping", "map.json", "Json file mapping roles with buttom labels")
-	message     = flag.String("msg", "Pick your roles", "Text to be shown with the buttons")
 )
 
 var s *discordgo.Session
 
-var buttonMap ButtonMap
+var cmdMap CommandMap
 
 func init() { flag.Parse() }
 
@@ -32,40 +31,40 @@ func init() {
 	var err error
 	file, err := os.ReadFile(*MappingFile)
 	if err != nil {
-		log.Fatalf("I NEED A MAP FILE: %v", err)
+		log.Fatalf("[ERROR] I NEED A MAP FILE: %v", err)
 	}
-	var mappings map[string][][]Button
+	var mappings map[string]JSONCommand
 	err = json.Unmarshal(file, &mappings)
 	if err != nil {
-		log.Fatalf("FAILED TO PARSE YOUR JSON: %v", err)
+		log.Fatalf("[ERROR] FAILED TO PARSE YOUR JSON: %v", err)
 	}
 	re := regexp.MustCompile(`^[-_\p{L}\p{N}\p{Devanagari}\p{Thai}]{1,32}$`)
 	for k := range mappings {
 		if !re.MatchString(k) {
-			log.Fatalln("The command name does not follow discord naming rules:", err)
+			log.Fatalln("[ERROR] The command name does not follow discord naming rules:", err)
 		}
 	}
 	s, err = discordgo.New("Bot " + *BotToken)
 	if err != nil {
-		log.Fatalln("Invalid bot parameters:", err)
+		log.Fatalln("[ERROR] Invalid bot parameters:", err)
 	}
 	s.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
 		roles, err := s.GuildRoles(*GuildID)
 		if err != nil {
-			log.Fatalf("Failed to fetch guild roles with error: %v", err)
+			log.Fatalf("[ERROR] Failed to fetch guild roles with error: %v", err)
 		}
 		sort.Slice(roles, func(i, j int) bool {
 			return roles[i].Name < roles[j].Name
 		})
-		buttonMap = convertMap(mappings, roles)
-		for k := range buttonMap {
+		cmdMap = convertMap(mappings, roles)
+		for k, v := range cmdMap {
 			_, err = s.ApplicationCommandCreate(*AppID, *GuildID, &discordgo.ApplicationCommand{
 				Name:        k,
-				Description: fmt.Sprint("Get role menu for", k),
+				Description: v.Description,
 			})
-			fmt.Println("Adding command:", k)
+			fmt.Println("[INFO] Adding command:", k)
 			if err != nil {
-				log.Fatalf("Cannot create slash command: %v", err)
+				log.Fatalf("[ERROR] Cannot create slash command: %v", err)
 			}
 		}
 		log.Println("Bot is up!")
@@ -117,7 +116,7 @@ func roleToggle(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	InteractionResponseEphemeral(s, i, "Role added")
 }
 
-func sendButton(s *discordgo.Session, i *discordgo.InteractionCreate, components []discordgo.MessageComponent) {
+func sendButton(s *discordgo.Session, i *discordgo.InteractionCreate, components Command) {
 	flags := discordgo.MessageFlagsEphemeral
 	if i.Member.Permissions&discordgo.PermissionAdministrator != 0 {
 		flags = 0
@@ -125,9 +124,9 @@ func sendButton(s *discordgo.Session, i *discordgo.InteractionCreate, components
 	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
-			Content:    *message,
+			Content:    components.Message,
 			Flags:      flags,
-			Components: components,
+			Components: components.Buttons,
 		},
 	})
 	if err != nil {
@@ -140,7 +139,7 @@ func main() {
 	s.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		switch i.Type {
 		case discordgo.InteractionApplicationCommand:
-			if h, ok := buttonMap[i.ApplicationCommandData().Name]; ok {
+			if h, ok := cmdMap[i.ApplicationCommandData().Name]; ok {
 				sendButton(s, i, h)
 			}
 		case discordgo.InteractionMessageComponent:
@@ -150,24 +149,24 @@ func main() {
 	})
 	cmds, err := s.ApplicationCommands(*AppID, *GuildID)
 	if err != nil {
-		log.Fatalln("Failed to fetch guild commands:", err)
+		log.Fatalln("[ERROR] Failed to fetch guild commands:", err)
 	}
 	for cmd := range cmds {
 		err = s.ApplicationCommandDelete(*AppID, *GuildID, cmds[cmd].ID)
-		fmt.Println("Deleting command:", cmds[cmd].Name)
+		fmt.Println("[INFO] Deleting command:", cmds[cmd].Name)
 		if err != nil {
-			log.Println("Cannot delete slash command:", err)
+			log.Println("[WARN] Cannot delete slash command:", err)
 		}
 	}
 
 	err = s.Open()
 	if err != nil {
-		log.Fatalf("Cannot open the session: %v", err)
+		log.Fatalf("[ERROR] Cannot open the session: %v", err)
 	}
 	defer s.Close()
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
 	<-stop
-	log.Println("Graceful shutdown")
+	log.Println("[INFO] Graceful shutdown")
 }

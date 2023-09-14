@@ -13,9 +13,6 @@ Your discord app ID from the discord dev console
 The guild id for the server
 -mapping
 A json file mapping a button label to a role name
--msg
-The message that will come with the buttons
-For now the message will be shared across all commands
 ```
 
 ## map.json file
@@ -25,7 +22,6 @@ For now the message will be shared across all commands
 - You can only have a maximum of 5 rows per command and 5 buttons per row (so a total of 25 roles per command) (Discord limitation)
 - Command names should follow this `/^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$/gu` JS style regex (Discord limitation)
   - You can test with `"your-command-name".match(/^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$/gu)` in a JS runtime such as your browsers console
-- For now, the message will be shared across all commands (Our limitation)
 
 ### Available Styles
 
@@ -40,42 +36,50 @@ Inside your map.json file you'll use this schema:
 
 ```json
 {
-    "first-command-name": [
-        [
-            {
-                "Role":"role name in your server",
-                "Label": "Text written in this button",
-                "Style": "red"
-            },
-            {
-                "Role":"Another role",
-                "Label": "Different label",
-                "Style": "grey"
-            }
-        ],
-        [
-            {
-                "Role":"A role in a different row!",
-                "Label": "Label in a different row!",
-                "Style": "blurple"
-            }
+    "first-command-name": {
+        "Description": "Description for your first command",
+        "Message": "Message that will be sent with every invocation of this command",
+        "Buttons": [
+            [
+                {
+                    "Role":"role name in your server",
+                    "Label": "Text written in this button",
+                    "Style": "red"
+                },
+                {
+                    "Role":"Another role",
+                    "Label": "Different label",
+                    "Style": "grey"
+                }
+            ],
+            [
+                {
+                    "Role":"A role in a different row!",
+                    "Label": "Label in a different row!",
+                    "Style": "blurple"
+                }
+            ]
         ]
-    ],
-    "second-command": [
-        [
-            {
-                "Role":"Different command",
-                "Label": "Role in a diffferent command",
-                "Style": "red"
-            }
-        ],
-        [
-            {
-                "Role":"d",
-                "Label": "Role deez nuts",
-                "Style": "blurple"
-            }
+    },
+    "second-command": {
+        "Decription": "Description of your second-command",
+        "Message": "A massage to be sent with the second-command"",
+        "Buttons": [
+            [
+                {
+                    "Role":"Different command",
+                    "Label": "Role in a diffferent command",
+                    "Style": "red"
+                }
+            ],
+            [
+                {
+                    "Role":"d",
+                    "Label": "Role deez nuts",
+                    "Style": "blurple"
+                }
+            ]
         ]
-    ]
+    }
 }
 ```

@@ -1,44 +1,52 @@
 {
-    "aa": [
-        [
-            {
-                "Role":"a",
-                "Label": "Role A",
-                "Style": "red"
-            },
-            {
-                "Role":"b",
-                "Label": "Role B",
-                "Style": "green"
-            },
-            {
-                "Role":"c",
-                "Label": "Role C",
-                "Style": "grey"
-            }
-        ],
-        [
-            {
-                "Role":"d",
-                "Label": "Role deez nuts",
-                "Style": "blurple"
-            }
+    "aa": {
+        "Description": "Run to discover",
+        "Message": "AAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "Buttons": [
+            [
+                {
+                    "Role":"a",
+                    "Label": "Role A",
+                    "Style": "red"
+                },
+                {
+                    "Role":"b",
+                    "Label": "Role B",
+                    "Style": "green"
+                },
+                {
+                    "Role":"c",
+                    "Label": "Role C",
+                    "Style": "grey"
+                }
+            ],
+            [
+                {
+                    "Role":"d",
+                    "Label": "Role deez nuts",
+                    "Style": "blurple"
+                }
+            ]
         ]
-    ],
-    "bb": [
-        [
-            {
-                "Role":"a",
-                "Label": "Damn I love potatoes!",
-                "Style": "blurple"
-            }
-        ],
-        [
-            {
-                "Role":"d",
-                "Label": "Role deez nuts",
-                "Style": "grey"
-            }
+    },
+    "bb": {
+        "Description": "Fuck around and find out",
+        "Message": "HEY HEY HEY!!!",
+        "Buttons": [
+            [
+                {
+                    "Role":"a",
+                    "Label": "Damn I love potatoes!",
+                    "Style": "blurple"
+                }
+            ],
+            [
+                {
+                    "Role":"d",
+                    "Label": "Role deez nuts",
+                    "Style": "grey"
+                }
+            ]
         ]
-    ]
+    }
 }
