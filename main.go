@@ -19,6 +19,7 @@ var (
 	BotToken    = flag.String("token", "", "Bot access token")
 	AppID       = flag.String("app", "", "Application ID")
 	MappingFile = flag.String("mapping", "map.json", "Json file mapping roles with buttom labels")
+    message     = flag.String("msg", "Pick your roles", "Text to be shown with the buttons")
 )
 
 var s *discordgo.Session
@@ -58,9 +59,13 @@ func init() {
 		})
 		cmdMap = convertMap(mappings, roles)
 		for k, v := range cmdMap {
+            desc := v.Description
+            if desc == "" {
+                desc = fmt.Sprint("Get role menu for ", k)
+            }
 			_, err = s.ApplicationCommandCreate(*AppID, *GuildID, &discordgo.ApplicationCommand{
 				Name:        k,
-				Description: v.Description,
+				Description: desc,
 			})
 			fmt.Println("[INFO] Adding command:", k)
 			if err != nil {

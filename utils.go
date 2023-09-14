@@ -16,8 +16,8 @@ type JSONButton struct {
 }
 
 type JSONCommand struct {
-	Message     string
-	Description string
+	Message     string `json:",omitempty"`
+	Description string `json:",omitempty"`
 	Buttons     [][]JSONButton
 }
 
@@ -30,6 +30,10 @@ type CommandMap map[string]Command
 
 func convertMap(fileMap map[string]JSONCommand, roles []*discordgo.Role) CommandMap {
 	result := make(CommandMap)
+    overrideMsg := false
+    if *message != "Pick your roles" {
+        overrideMsg = true
+    }
 	for k, cmd := range fileMap {
 		if len(cmd.Buttons) > 5 {
 			log.Fatalln("Command has more than 5 action rows")
@@ -68,11 +72,15 @@ func convertMap(fileMap map[string]JSONCommand, roles []*discordgo.Role) Command
 				Components: currentButton,
 			})
 		}
-		result[k] = Command{
-            Buttons: currentActionRow,
-            Description: cmd.Description,
-            Message: cmd.Message,
+        msg := cmd.Message
+        if overrideMsg || msg == "" {
+            msg = *message
         }
+		result[k] = Command{
+			Buttons:     currentActionRow,
+			Description: cmd.Description,
+			Message:     msg,
+		}
 	}
 	return result
 }
