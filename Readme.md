@@ -63,7 +63,7 @@ Inside your map.json file you'll use this schema:
     },
     "second-command": {
         "Decription": "Description of your second-command",
-        "Message": "A massage to be sent with the second-command"",
+        "Message": "A massage to be sent with the second-command",
         "Buttons": [
             [
                 {
