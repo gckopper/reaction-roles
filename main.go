@@ -15,7 +15,7 @@ import (
 
 // Bot parameters
 var (
-	GuildID     = flag.String("guild", "", "Test guild ID")
+	GuildID     = flag.String("guild", "", "Guild ID")
 	BotToken    = flag.String("token", "", "Bot access token")
 	AppID       = flag.String("app", "", "Application ID")
 	MappingFile = flag.String("mapping", "map.json", "Json file mapping roles with buttom labels")
