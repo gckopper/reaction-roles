@@ -62,6 +62,9 @@ func convertMap(fileMap map[string]JSONCommand, roles []*discordgo.Role) Command
 				roleIDidx := sort.Search(len(roles), func(i int) bool {
 					return roles[i].Name >= button.Role
 				})
+                if roleIDidx == len(roles) {
+                    log.Fatalf("We were unable to find a role named %s\n", button.Role)
+                }
 				currentButton = append(currentButton, discordgo.Button{
 					Label:    button.Label,
 					Style:    style,

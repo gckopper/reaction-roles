@@ -15,20 +15,25 @@ import (
 
 // Bot parameters
 var (
-	GuildID     = flag.String("guild", "", "Guild ID")
-	BotToken    = flag.String("token", "", "Bot access token")
-	AppID       = flag.String("app", "", "Application ID")
-	MappingFile = flag.String("mapping", "map.json", "Json file mapping roles with buttom labels")
-    message     = flag.String("msg", "Pick your roles", "Text to be shown with the buttons")
+    GuildID     *string  
+    BotToken    *string
+    AppID       *string
+    MappingFile *string
+    message     *string
 )
 
 var s *discordgo.Session
 
 var cmdMap CommandMap
 
-func init() { flag.Parse() }
 
 func init() {
+    GuildID     = flag.String("guild", "", "Guild ID")
+    BotToken    = flag.String("token", "", "Bot access token")
+    AppID       = flag.String("app", "", "Application ID")
+    MappingFile = flag.String("mapping", "map.json", "Json file mapping roles with buttom labels")
+    message     = flag.String("msg", "Pick your roles", "Text to be shown with the buttons")
+    flag.Parse()
 	var err error
 	file, err := os.ReadFile(*MappingFile)
 	if err != nil {
@@ -45,6 +50,15 @@ func init() {
 			log.Fatalln("[ERROR] The command name does not follow discord naming rules:", err)
 		}
 	}
+    if *BotToken == "" {
+        log.Fatalln("Bot Token cannot be empty")
+    }
+    if *GuildID == "" {
+        log.Fatalln("Guild ID cannot be empty")
+    }
+    if *AppID == "" {
+        log.Fatalln("App ID cannot be empty")
+    }
 	s, err = discordgo.New("Bot " + *BotToken)
 	if err != nil {
 		log.Fatalln("[ERROR] Invalid bot parameters:", err)
