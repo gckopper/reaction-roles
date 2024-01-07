@@ -2,6 +2,20 @@
 
 ## Using
 
+### Docker
+
+Clone this repository or download the `compose.yaml` and `.env.example` files
+
+Rename the `.env.example` to `.env` and edit it to include your Discord bot token, application id and guild id.
+
+Create your `map.json` file
+
+Use the command `docker compose up -d` to start the bot in the background! Remove the `-d` to see logs and messages
+
+You can stop the bot using `docker comppose down` while inside the same folder as the other files
+
+### Directly via command-line
+
 Download the binary for your system and run with the disered arguments
 
 ``` no
