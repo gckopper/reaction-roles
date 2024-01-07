@@ -1,0 +1,10 @@
+services:
+  bot:
+    build: .
+    image: reaction-roles
+    container_name: reaction-roles
+    volumes:
+      - ${MAP_PATH}:/map.json:ro
+    env_file:
+      - ./.env
+    command: ["-guild", "${GUILD_ID}", "-token", "${TOKEN}", "-app", "${APP_ID}", "-mapping", "/map.json"]
