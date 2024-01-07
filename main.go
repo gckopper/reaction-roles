@@ -86,7 +86,7 @@ func init() {
 				log.Fatalf("[ERROR] Cannot create slash command: %v", err)
 			}
 		}
-		log.Println("Bot is up!")
+		log.Println("[INFO] Bot is up!")
 	})
 }
 
@@ -108,7 +108,7 @@ func roleToggle(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	role := i.MessageComponentData().CustomID
 	member := i.Member
 	if member == nil {
-		InteractionResponseEphemeral(s, i, "Cant figure out your ID so... FUCK YOU")
+		InteractionResponseEphemeral(s, i, "Cant figure out your ID so we can't give you any roles!")
 		log.Println("[ERROR]", "Cant figure out user ID")
 		return
 	}
