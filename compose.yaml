@@ -1,7 +1,7 @@
 services:
   bot:
     build: .
-    image: reaction-roles
+    image: ghcr.io/gckopper/reaction-roles:latest
     container_name: reaction-roles
     volumes:
       - ${MAP_PATH}:/map.json:ro
