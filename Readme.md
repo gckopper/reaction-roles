@@ -1,5 +1,7 @@
 # Reaction roles discord bot
 
+[![Docker Build](https://github.com/gckopper/reaction-roles/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/gckopper/reaction-roles/actions/workflows/docker-publish.yml)
+
 ## Using
 
 ### Docker
