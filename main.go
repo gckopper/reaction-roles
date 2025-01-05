@@ -15,25 +15,24 @@ import (
 
 // Bot parameters
 var (
-    GuildID     *string  
-    BotToken    *string
-    AppID       *string
-    MappingFile *string
-    message     *string
+	GuildID     *string
+	BotToken    *string
+	AppID       *string
+	MappingFile *string
+	message     *string
 )
 
 var s *discordgo.Session
 
 var cmdMap CommandMap
 
-
 func init() {
-    GuildID     = flag.String("guild", "", "Guild ID")
-    BotToken    = flag.String("token", "", "Bot access token")
-    AppID       = flag.String("app", "", "Application ID")
-    MappingFile = flag.String("mapping", "map.json", "Json file mapping roles with buttom labels")
-    message     = flag.String("msg", "Pick your roles", "Text to be shown with the buttons")
-    flag.Parse()
+	GuildID = flag.String("guild", "", "Guild ID")
+	BotToken = flag.String("token", "", "Bot access token")
+	AppID = flag.String("app", "", "Application ID")
+	MappingFile = flag.String("mapping", "map.json", "Json file mapping roles with buttom labels")
+	message = flag.String("msg", "Pick your roles", "Text to be shown with the buttons")
+	flag.Parse()
 	var err error
 	file, err := os.ReadFile(*MappingFile)
 	if err != nil {
@@ -50,15 +49,15 @@ func init() {
 			log.Fatalln("[ERROR] The command name does not follow discord naming rules:", err)
 		}
 	}
-    if *BotToken == "" {
-        log.Fatalln("Bot Token cannot be empty")
-    }
-    if *GuildID == "" {
-        log.Fatalln("Guild ID cannot be empty")
-    }
-    if *AppID == "" {
-        log.Fatalln("App ID cannot be empty")
-    }
+	if *BotToken == "" {
+		log.Fatalln("Bot Token cannot be empty")
+	}
+	if *GuildID == "" {
+		log.Fatalln("Guild ID cannot be empty")
+	}
+	if *AppID == "" {
+		log.Fatalln("App ID cannot be empty")
+	}
 	s, err = discordgo.New("Bot " + *BotToken)
 	if err != nil {
 		log.Fatalln("[ERROR] Invalid bot parameters:", err)
@@ -73,10 +72,10 @@ func init() {
 		})
 		cmdMap = convertMap(mappings, roles)
 		for k, v := range cmdMap {
-            desc := v.Description
-            if desc == "" {
-                desc = fmt.Sprint("Get role menu for ", k)
-            }
+			desc := v.Description
+			if desc == "" {
+				desc = fmt.Sprint("Get role menu for ", k)
+			}
 			_, err = s.ApplicationCommandCreate(*AppID, *GuildID, &discordgo.ApplicationCommand{
 				Name:        k,
 				Description: desc,
