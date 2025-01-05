@@ -1,4 +1,4 @@
-# Reaction role discord bot
+# Reaction roles discord bot
 
 ## Using
 
