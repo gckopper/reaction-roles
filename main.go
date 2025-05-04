@@ -50,13 +50,22 @@ func init() {
 		}
 	}
 	if *BotToken == "" {
-		log.Fatalln("Bot Token cannot be empty")
+		*BotToken = os.Getenv("TOKEN")
+		if *BotToken == "" {
+			log.Fatalln("Bot Token cannot be empty")
+		}
 	}
 	if *GuildID == "" {
-		log.Fatalln("Guild ID cannot be empty")
+		*GuildID = os.Getenv("GUILD")
+		if *GuildID == "" {
+			log.Fatalln("Guild ID cannot be empty")
+		}
 	}
 	if *AppID == "" {
-		log.Fatalln("App ID cannot be empty")
+		*AppID = os.Getenv("APP")
+		if *AppID == "" {
+			log.Fatalln("App ID cannot be empty")
+		}
 	}
 	s, err = discordgo.New("Bot " + *BotToken)
 	if err != nil {
